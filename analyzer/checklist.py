@@ -8,6 +8,11 @@ Este módulo força 6 etapas de análise antes de qualquer escalação:
 4. CONTEXTO: Confrontos, sequência, desfalques, força dos times
 5. GESTÃO DE RISCO: Escape de manada, controle de exposição
 6. CAPITÃO: Escolha por teto de pontos e confronÃo mais favorável
+
+MPV (Mínimo Para Valorizar):
+- Fórmula CORRETA: quantos pontos o jogador precisa fazer para valorizar de preço
+- Se custa R$7 e média é 7 pts, precisa de ~7.5-8 pts para subir de preço
+- Quanto MENOR o MPV, mais fácil valorizar (jogador barato com potencial)
 """
 
 from datetime import datetime
@@ -99,6 +104,12 @@ class CartolaPrescalingChecklist:
         - Postura (mitar, valorizar, meio-termo)
         - Mínimo Para Valorizar (MPV) por jogador
         - Oportunidades de valorização
+        
+        MPV CORRIGIDO:
+        - Preço atual: R$7.00
+        - Média: 7 pts
+        - MPV = pontos necessários para subir de preço (~0.5% do preço base)
+        - Logo: MPV ≈ 7.5-8 pts (pouco acima da média)
         """
         findings = []
         recommendations = []
@@ -111,7 +122,7 @@ class CartolaPrescalingChecklist:
             findings.append("Estratégia: AGRESSIVA - Foco em jogadores baratos com alto potencial")
             recommendations.append("Escale 30-40% do orçamento em jogadores abaixo da média de preço")
             recommendations.append("Use 1-2 apostas diferenciais em ataque")
-        elif self.posture == PostureEnum.VALORIZAR:
+        elif self.postura == PostureEnum.VALORIZAR:
             findings.append("Estratégia: CONSERVADORA - Foco em jogadores seguros com chance de subir preço")
             recommendations.append("Escale 70-80% do orçamento em jogadores com preço abaixo da média + alto teto")
             recommendations.append("Evite apostas muito arriscadas")
@@ -119,21 +130,24 @@ class CartolaPrescalingChecklist:
             findings.append("Estratégia: BALANÇADA - 50% segurança, 50% oportunidade")
             recommendations.append("Escale 60% em jogadores seguros, 40% em oportunidades")
 
-        # Calcula MPV para cada jogador
+        # Calcula MPV CORRIGIDO para cada jogador
+        # MPV = mínimo de pontos para o jogador valorizar (subir de preço)
+        # Cartola: valoriza ~0.5-1 ponto acima da média
         mpv_analysis = []
         for player in self.all_players:
-            # MPV simples: preço * 0.8 / média de pontos
             if player.average_points > 0:
-                mpv = (player.price * 0.8) / player.average_points
+                # MPV é a média + um incremento pequeno (0.5 a 1 ponto)
+                # Quanto MENOR este valor, mais fácil de valorizar
+                mpv = player.average_points + 0.5  # Precisa fazer ~0.5 pts acima da média
                 player.mpv = mpv
                 if player.price < 5.0:  # Jogador barato
-                    mpv_analysis.append((player.name, player.price, mpv))
+                    mpv_analysis.append((player.name, player.price, player.average_points, mpv))
 
         if mpv_analysis:
-            mpv_analysis.sort(key=lambda x: x[2])  # Ordena por MPV
+            mpv_analysis.sort(key=lambda x: x[3])  # Ordena por MPV (menor = mais fácil valorizar)
             findings.append(f"Top 3 baratos com melhor MPV (mais fácil valorizar):")
-            for name, price, mpv in mpv_analysis[:3]:
-                findings.append(f"  - {name} (R${price:.1f}M, MPV: {mpv:.2f})")
+            for name, price, avg, mpv in mpv_analysis[:3]:
+                findings.append(f"  - {name} (R${price:.1f}M, Média: {avg:.1f} pts, Precisa: {mpv:.1f} pts)")
 
         return AnalysisStep(
             step_number=2,
@@ -380,7 +394,7 @@ class CartolaPrescalingChecklist:
             rodada=self.rodada,
             timestamp=datetime.now(),
             budget=self.budget,
-            posture=self.posture,
+            postura=self.postura,
             step1_leitura_rodada=step1,
             step2_patrimonio=step2,
             step3_scouts=step3,
@@ -404,7 +418,7 @@ class CartolaPrescalingChecklist:
 **Rodada:** {self.response.rodada}  
 **Data:** {self.response.timestamp.strftime('%d/%m/%Y %H:%M')}  
 **Orçamento:** R$ {self.response.budget:.1f}M  
-**Postura:** {self.response.posture.value.upper()}  
+**Postura:** {self.response.postura.value.upper()}  
 **Confiança Geral:** {self.response.confidence_level:.1f}%  
 **Risco:** {self.response.risk_score:.1%}  
 
