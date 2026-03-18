@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cartola-specialist-analyzer"
+version = "1.0.0"
+description = "Template de análise pré-escalação para Cartola FC - Checklist de especialista"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Erick Vinicius", email = "erickvinicius965@gmail.com"}
+]
+keywords = ["cartola", "fantasy-football", "analysis", "sports", "data-science"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Games/Entertainment :: Fortune Cookies",
+]
+
+dependencies = [
+    "pydantic>=2.0.0",
+    "requests>=2.30.0",
+    "pandas>=2.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/RickTheBoy-ops/cartola-specialist-analyzer"
+Documentation = "https://github.com/RickTheBoy-ops/cartola-specialist-analyzer/blob/main/README.md"
+Repository = "https://github.com/RickTheBoy-ops/cartola-specialist-analyzer.git"
+Issues = "https://github.com/RickTheBoy-ops/cartola-specialist-analyzer/issues"
+
+[tool.setuptools]
+packages = ["analyzer"]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
